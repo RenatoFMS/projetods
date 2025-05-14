@@ -1,13 +1,14 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.border.EmptyBorder;
 
 public class MenuConta {
     ContaCorrente contaCC = new ContaCorrente(200);
     ContaPoupanca contaCP = new ContaPoupanca();
-    private Font fonteAtual = new Font("Arial", Font.PLAIN, 16);
+    private static int espacamentoInternoHorizontal = 5;
 
-    JMenuBar criarMenuBar(JFrame frame) {
+    private JMenuBar criarMenuBar(JFrame frame) {
         JMenuBar barraMenu = new JMenuBar();
         JMenu menuOpcoes = new JMenu("Opções");
 
@@ -15,31 +16,36 @@ public class MenuConta {
         JMenuItem corAzul = new JMenuItem("Azul Claro");
         corAzul.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().setBackground(new Color(173, 216, 230));
+                Principal.corDeFundoGlobal = new Color(173, 216, 230);
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem corCinza = new JMenuItem("Cinza");
         corCinza.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().setBackground(Color.LIGHT_GRAY);
+                Principal.corDeFundoGlobal = Color.LIGHT_GRAY;
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem corBranco = new JMenuItem("Branco");
         corBranco.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().setBackground(Color.WHITE);
+                Principal.corDeFundoGlobal = Color.WHITE;
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem corVerde = new JMenuItem("Verde Claro");
         corVerde.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().setBackground(new Color(144, 238, 144));
+                Principal.corDeFundoGlobal = new Color(144, 238, 144);
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem corAmarelo = new JMenuItem("Amarelo Claro");
         corAmarelo.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                frame.getContentPane().setBackground(new Color(255, 255, 153));
+                Principal.corDeFundoGlobal = new Color(255, 255, 153);
+                Principal.atualizarAparenciaGlobal();
             }
         });
         menuCor.add(corAzul);
@@ -52,25 +58,29 @@ public class MenuConta {
         JMenuItem estiloNormal = new JMenuItem("Normal");
         estiloNormal.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                atualizarFonte(frame, new Font(fonteAtual.getFontName(), Font.PLAIN, fonteAtual.getSize()));
+                Principal.fonteGlobal = new Font(Principal.fonteGlobal.getFontName(), Font.PLAIN, Principal.fonteGlobal.getSize());
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem estiloNegrito = new JMenuItem("Negrito");
         estiloNegrito.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                atualizarFonte(frame, new Font(fonteAtual.getFontName(), Font.BOLD, fonteAtual.getSize()));
+                Principal.fonteGlobal = new Font(Principal.fonteGlobal.getFontName(), Font.BOLD, Principal.fonteGlobal.getSize());
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem estiloItalico = new JMenuItem("Itálico");
         estiloItalico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                atualizarFonte(frame, new Font(fonteAtual.getFontName(), Font.ITALIC, fonteAtual.getSize()));
+                Principal.fonteGlobal = new Font(Principal.fonteGlobal.getFontName(), Font.ITALIC, Principal.fonteGlobal.getSize());
+                Principal.atualizarAparenciaGlobal();
             }
         });
         JMenuItem estiloNegritoItalico = new JMenuItem("Negrito Itálico");
         estiloNegritoItalico.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                atualizarFonte(frame, new Font(fonteAtual.getFontName(), Font.BOLD | Font.ITALIC, fonteAtual.getSize()));
+                Principal.fonteGlobal = new Font(Principal.fonteGlobal.getFontName(), Font.BOLD | Font.ITALIC, Principal.fonteGlobal.getSize());
+                Principal.atualizarAparenciaGlobal();
             }
         });
         menuEstilo.add(estiloNormal);
@@ -82,10 +92,11 @@ public class MenuConta {
         ButtonGroup grupoTamanho = new ButtonGroup();
         int[] tamanhos = {10, 12, 14, 16, 18, 20, 24};
         for (int tamanho : tamanhos) {
-            JRadioButtonMenuItem item = new JRadioButtonMenuItem(String.valueOf(tamanho), tamanho == 16);
+            JRadioButtonMenuItem item = new JRadioButtonMenuItem(String.valueOf(tamanho), tamanho == Principal.fonteGlobal.getSize());
             item.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    atualizarFonte(frame, new Font(fonteAtual.getFontName(), fonteAtual.getStyle(), tamanho));
+                    Principal.fonteGlobal = new Font(Principal.fonteGlobal.getFontName(), Principal.fonteGlobal.getStyle(), tamanho);
+                    Principal.atualizarAparenciaGlobal();
                 }
             });
             grupoTamanho.add(item);
@@ -99,28 +110,33 @@ public class MenuConta {
         return barraMenu;
     }
 
-    private void atualizarFonte(JFrame frame, Font novaFonte) {
-        fonteAtual = novaFonte;
-        for (Component comp : frame.getContentPane().getComponents()) {
-            comp.setFont(fonteAtual);
-        }
-        SwingUtilities.updateComponentTreeUI(frame);
+    private void atualizarFonteComponente(Component comp, Font novaFonte) {
+        comp.setFont(novaFonte);
     }
 
-    public void operarContaCCGUI(JFrame frameAnterior, Font fonte) {
-        fonteAtual = fonte;
+    public JFrame criarContaCCGUI(JFrame frameAnterior, Font fonteInicial, Color corDeFundoInicial) {
         JFrame frame = new JFrame("Conta Corrente");
+        if (corDeFundoInicial != null) {
+            frame.getContentPane().setBackground(corDeFundoInicial);
+        } else if (Principal.corDeFundoGlobal != null) {
+            frame.getContentPane().setBackground(Principal.corDeFundoGlobal);
+        }
+        frame.setFont(fonteInicial != null ? fonteInicial : Principal.fonteGlobal);
         JLabel labelSaldo = new JLabel("Saldo: R$ " + ConversorNumeros.doubleToString(contaCC.getSaldo()));
         JTextField campoValor = new JTextField();
         JButton botaoDepositar = new JButton("Depositar");
         JButton botaoSacar = new JButton("Sacar");
         JButton botaoVoltar = new JButton("Voltar");
 
-        labelSaldo.setFont(fonteAtual);
-        campoValor.setFont(fonteAtual);
-        botaoDepositar.setFont(fonteAtual);
-        botaoSacar.setFont(fonteAtual);
-        botaoVoltar.setFont(fonteAtual);
+        atualizarFonteComponente(labelSaldo, frame.getFont());
+        atualizarFonteComponente(campoValor, frame.getFont());
+        atualizarFonteComponente(botaoDepositar, frame.getFont());
+        atualizarFonteComponente(botaoSacar, frame.getFont());
+        atualizarFonteComponente(botaoVoltar, frame.getFont());
+
+        botaoDepositar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
+        botaoSacar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
+        botaoVoltar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
 
         frame.setLayout(new GridLayout(5, 1, 5, 5));
         frame.add(labelSaldo);
@@ -134,11 +150,11 @@ public class MenuConta {
                 try {
                     double valor = ConversorNumeros.stringToDouble(campoValor.getText());
                     contaCC.depositar(valor);
-                    JOptionPane.showMessageDialog(null, "Depósito realizado com sucesso!");
+                    JOptionPane.showMessageDialog(frame, "Depósito realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     labelSaldo.setText("Saldo: R$ " + ConversorNumeros.doubleToString(contaCC.getSaldo()));
                     campoValor.setText("");
-                } catch (Exception ex) {
-                    EntradaSaidaDados.saidaDados("Valor inválido.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -148,11 +164,11 @@ public class MenuConta {
                 try {
                     double valor = ConversorNumeros.stringToDouble(campoValor.getText());
                     contaCC.sacar(valor);
-                    JOptionPane.showMessageDialog(null, "Saque realizado com sucesso!");
+                    JOptionPane.showMessageDialog(frame, "Saque realizado com sucesso!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     labelSaldo.setText("Saldo: R$ " + ConversorNumeros.doubleToString(contaCC.getSaldo()));
                     campoValor.setText("");
-                } catch (Exception ex) {
-                    EntradaSaidaDados.saidaDados("Erro ao sacar.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -169,11 +185,17 @@ public class MenuConta {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frameAnterior.setVisible(false);
+        return frame;
     }
 
-    public void operarContaCPGUI(JFrame frameAnterior, Font fonte) {
-        fonteAtual = fonte;
+    public JFrame criarContaCPGUI(JFrame frameAnterior, Font fonteInicial, Color corDeFundoInicial) {
         JFrame frame = new JFrame("Conta Poupança");
+        if (corDeFundoInicial != null) {
+            frame.getContentPane().setBackground(corDeFundoInicial);
+        } else if (Principal.corDeFundoGlobal != null) {
+            frame.getContentPane().setBackground(Principal.corDeFundoGlobal);
+        }
+        frame.setFont(fonteInicial != null ? fonteInicial : Principal.fonteGlobal);
         JLabel labelSaldo = new JLabel("Saldo: R$ " + ConversorNumeros.doubleToString(contaCP.getSaldo()));
         JTextField campoValor = new JTextField();
         JButton botaoDepositar = new JButton("Depositar");
@@ -181,12 +203,17 @@ public class MenuConta {
         JButton botaoReajustar = new JButton("Reajustar");
         JButton botaoVoltar = new JButton("Voltar");
 
-        labelSaldo.setFont(fonteAtual);
-        campoValor.setFont(fonteAtual);
-        botaoDepositar.setFont(fonteAtual);
-        botaoSacar.setFont(fonteAtual);
-        botaoReajustar.setFont(fonteAtual);
-        botaoVoltar.setFont(fonteAtual);
+        atualizarFonteComponente(labelSaldo, frame.getFont());
+        atualizarFonteComponente(campoValor, frame.getFont());
+        atualizarFonteComponente(botaoDepositar, frame.getFont());
+        atualizarFonteComponente(botaoSacar, frame.getFont());
+        atualizarFonteComponente(botaoReajustar, frame.getFont());
+        atualizarFonteComponente(botaoVoltar, frame.getFont());
+
+        botaoDepositar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
+        botaoSacar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
+        botaoReajustar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
+        botaoVoltar.setBorder(new EmptyBorder(0, espacamentoInternoHorizontal, 0, espacamentoInternoHorizontal));
 
         frame.setLayout(new GridLayout(6, 1, 5, 5));
         frame.add(labelSaldo);
@@ -201,11 +228,11 @@ public class MenuConta {
                 try {
                     double valor = ConversorNumeros.stringToDouble(campoValor.getText());
                     contaCP.depositar(valor);
-                    JOptionPane.showMessageDialog(null, "Depósito realizado!");
+                    JOptionPane.showMessageDialog(frame, "Depósito realizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     labelSaldo.setText("Saldo: R$ " + ConversorNumeros.doubleToString(contaCP.getSaldo()));
                     campoValor.setText("");
-                } catch (Exception ex) {
-                    EntradaSaidaDados.saidaDados("Valor inválido.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -215,11 +242,11 @@ public class MenuConta {
                 try {
                     double valor = ConversorNumeros.stringToDouble(campoValor.getText());
                     contaCP.sacar(valor);
-                    JOptionPane.showMessageDialog(null, "Saque realizado!");
+                    JOptionPane.showMessageDialog(frame, "Saque realizado!", "Sucesso", JOptionPane.INFORMATION_MESSAGE);
                     labelSaldo.setText("Saldo: R$ " + ConversorNumeros.doubleToString(contaCP.getSaldo()));
                     campoValor.setText("");
-                } catch (Exception ex) {
-                    EntradaSaidaDados.saidaDados("Erro ao sacar.");
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor inválido.", "Erro", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -227,7 +254,7 @@ public class MenuConta {
         botaoReajustar.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 contaCP.reajustarSaldo();
-                EntradaSaidaDados.saidaDados("Reajuste aplicado!");
+                JOptionPane.showMessageDialog(frame, "Reajuste aplicado!", "Informação", JOptionPane.INFORMATION_MESSAGE);
                 labelSaldo.setText("Saldo: R$ " + ConversorNumeros.doubleToString(contaCP.getSaldo()));
             }
         });
@@ -244,5 +271,6 @@ public class MenuConta {
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
         frameAnterior.setVisible(false);
+        return frame;
     }
 }
